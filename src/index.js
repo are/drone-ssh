@@ -19,3 +19,4 @@ const PRIVATE_KEY_PATH = process.env.PLUGIN_PRIVATE_KEY_PATH
 const SCRIPT = process.env.SCRIPT
 
 console.log(HOST, PRIVATE_KEY, SCRIPT)
+console.log(process.env)
