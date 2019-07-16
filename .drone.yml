@@ -12,7 +12,7 @@ steps:
     - export APP_NAME='test'
 
   - name: test-plugin
-    image: are1000/drone-ssh:18
+    image: are1000/drone-ssh:19
     settings:
       private_key_path: ./private_key
       host: https://dokku.are1000.dev

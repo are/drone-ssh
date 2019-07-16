@@ -29,6 +29,7 @@ const SCRIPT = process.env.PLUGIN_SCRIPT
 const ENV = JSON.parse(process.env.PLUGIN_ENV)
 
 for (let [key, value] of Object.entries(ENV)) {
+    console.log(key, value, format(value))
     process.env[key] = format(value)
 }
 
