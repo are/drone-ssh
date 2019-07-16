@@ -39,7 +39,7 @@ for (let line of lines) {
         host: HOST,
         port: 22,
         username: USERNAME,
-        privateKey: privateKey
+        privateKey: privateKey.toString()
     })
 
     if (error) {
