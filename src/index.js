@@ -23,7 +23,7 @@ const STR_REGEX = /^\"([^\"]+)\"$/
 
 const stream = exec('/bin/sh', {
   host: HOST,
-  username: USERNAME,
+  user: USERNAME,
   privateKey: PRIVATE_KEY_PATH
 })
 // await ssh.connect({
