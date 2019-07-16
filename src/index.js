@@ -1,6 +1,5 @@
-require('shelljs-plugin-ssh')
-const shell = require('shelljs')
 const format = require('string-template')
+const SSH = require('simple-ssh')
 const fs = require('fs')
 const path = require('path')
 
@@ -22,7 +21,13 @@ const HOST = format(process.env.PLUGIN_HOST, process.env)
 const PRIVATE_KEY_PATH = format(process.env.PLUGIN_PRIVATE_KEY_PATH, process.env)
 const SCRIPT = process.env.PLUGIN_SCRIPT
 
-const privateKey = fs.readFileSync(PRIVATE_KEY_PATH)
+const privateKey = fs.readFileSync(PRIVATE_KEY_PATH, 'utf8')
+
+const ssh = new SSH({
+    host: HOST,
+    user: USERNAME,
+    key: privateKey,
+})
 
 const lines = SCRIPT.split(',')
 
@@ -35,17 +40,13 @@ for (let line of lines) {
 
     console.log(`${HOST} $ ${formattedLine}`)
 
-    const { out, error } = shell.ssh(HOST, formattedLine, {
-        host: HOST,
-        port: 22,
-        username: USERNAME,
-        privateKey: privateKey.toString()
+    ssh.exec(formattedLine, {
+        out: (message) => console.log(`${HOST} ${message}`)
     })
-
-    if (error) {
-        console.log(error)
-        process.exit(1)
-    } else {
-        console.log(out)
-    }
 }
+
+ssh.start()
+  .on('error', () => {
+      console.log(error)
+      process.exit(1)
+  })
