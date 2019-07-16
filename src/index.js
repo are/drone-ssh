@@ -41,7 +41,13 @@ async function main () {
 
         console.log(`${HOST} $ ${formattedLine}`)
 
-        const result = ssh.execCommand(formattedLine)
+        const {stdout, stderr} = await ssh.execCommand(formattedLine)
+
+        if (stderr) {
+            throw stderr
+        } else {
+            console.log(stdout)
+        }
     }
 }
 
