@@ -3,7 +3,7 @@ name: default
 
 steps:
   - name: test-plugin
-    image: are1000/drone-ssh
+    image: are1000/drone-ssh:2
     settings:
       private_key_path: ./private_key
       host: https://dokku.are1000.dev
