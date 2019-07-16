@@ -15,6 +15,7 @@
   "homepage": "https://github.com/are1000/drone-ssh#readme",
   "dependencies": {
     "shelljs": "^0.8.3",
-    "shelljs-plugin-ssh": "^1.2.2"
+    "shelljs-plugin-ssh": "^1.2.2",
+    "string-template": "^1.0.0"
   }
 }

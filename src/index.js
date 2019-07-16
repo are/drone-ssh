@@ -1,5 +1,8 @@
 require('shelljs-plugin-ssh')
 const shell = require('shelljs')
+const format = require('string-template')
+const fs = require('fs')
+const path = require('path')
 
   // - apk update
   // - apk add openssh
@@ -14,9 +17,27 @@ const shell = require('shelljs')
   // - ssh dokku@dokku.are1000.dev tar:from "$APP_NAME" "https://git.are1000.dev/are/blog.iama.re/releases/download/$DRONE_TAG/release.tar"
   // - ssh dokku@dokku.are1000.dev letsencrypt "$APP_NAME"
 
-const HOST = process.env.PLUGIN_HOST
-const PRIVATE_KEY_PATH = process.env.PLUGIN_PRIVATE_KEY_PATH
-const SCRIPT = process.env.SCRIPT
+const HOST = format(process.env.PLUGIN_HOST, process.env)
+const PRIVATE_KEY_PATH = format(process.env.PLUGIN_PRIVATE_KEY_PATH, process.env)
+const SCRIPT = process.env.PLUGIN_SCRIPT
 
-console.log(HOST, PRIVATE_KEY_PATH, SCRIPT)
-console.log(process.env)
+const privateKey = fs.readFileSync(PRIVATE_KEY_PATH, 'utf8')
+
+const lines = SCRIPT.split(',')
+
+for (let line of lines) {
+    const formattedLine = format(line, process.env)
+
+    console.log(`${HOST} $ ${formattedLine}`)
+
+    const { out, error } = ssh(HOST, formattedLine, {
+        privateKey: privateKey
+    })
+
+    if (error) {
+        console.log(error)
+        process.exit(1)
+    } else {
+        console.log(out)
+    }
+}
