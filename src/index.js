@@ -56,12 +56,6 @@ async function main() {
         console.error(chunk.toString('utf8'))
       }
     })
-
-    console.log(result)
-
-    if (result.code !== 0) {
-      throw 'Failed'
-    }
   }
 }
 
