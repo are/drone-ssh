@@ -18,7 +18,10 @@ const ssh = new node_ssh()
   // - ssh dokku@dokku.are1000.dev tar:from "$APP_NAME" "https://git.are1000.dev/are/blog.iama.re/releases/download/$DRONE_TAG/release.tar"
   // - ssh dokku@dokku.are1000.dev letsencrypt "$APP_NAME"
 
-const format = (str, data) => {
+console.log(process.env)
+
+const format = (str) => {
+
     return handlebars.compile(str)(Object.assign({}, process.env))
 }
 
