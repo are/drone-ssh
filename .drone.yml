@@ -2,6 +2,14 @@ kind: pipeline
 name: default
 
 steps:
+  - name: get-private-key
+    image: node:10.16.0-alpine
+    environment:
+      GITEA_TOKEN:
+        from_secret: gitea_token
+    commands:
+    - npx -q gitea-secret -h git.are1000.dev -t "$GITEA_TOKEN" -r are/secrets -k ssh-keys/dokku-drone/private -o /private_key
+
   - name: test-plugin
     image: are1000/drone-ssh:3
     settings:
