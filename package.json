@@ -15,6 +15,7 @@
   "homepage": "https://github.com/are1000/drone-ssh#readme",
   "dependencies": {
     "simple-ssh": "^1.0.0",
+    "sshpk": "^1.16.1",
     "string-template": "^1.0.0"
   }
 }

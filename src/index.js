@@ -1,5 +1,6 @@
 const format = require('string-template')
 const SSH = require('simple-ssh')
+const sshpk = require('sshpk')
 const fs = require('fs')
 const path = require('path')
 
@@ -21,19 +22,18 @@ const HOST = format(process.env.PLUGIN_HOST, process.env)
 const PRIVATE_KEY_PATH = format(process.env.PLUGIN_PRIVATE_KEY_PATH, process.env)
 const SCRIPT = process.env.PLUGIN_SCRIPT
 
-const privateKey = fs.readFileSync(PRIVATE_KEY_PATH, 'utf8')
+const key = sshpk.parseKey(
+  fs.readFileSync(PRIVATE_KEY_PATH),
+  'auto'
+)
 
 const ssh = new SSH({
     host: HOST,
     user: USERNAME,
-    key: privateKey,
+    key: key.toString('pem'),
 })
 
 const lines = SCRIPT.split(',')
-
-console.log(privateKey)
-console.log(lines)
-console.log(HOST, USERNAME, PRIVATE_KEY_PATH)
 
 for (let line of lines) {
     const formattedLine = format(line, process.env)
