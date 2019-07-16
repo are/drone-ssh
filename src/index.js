@@ -21,11 +21,22 @@ for (let [key, value] of Object.entries(ENV)) {
 
 const STR_REGEX = /^\"([^\"]+)\"$/
 
-const stream = exec('/bin/sh', {
-  host: HOST,
-  user: USERNAME,
-  key: PRIVATE_KEY_PATH
-})
+const stream = exec(
+  '/bin/sh',
+  {
+    host: HOST,
+    user: USERNAME,
+    key: PRIVATE_KEY_PATH
+  },
+  function(err, stdout, stderr) {
+    if (err) {
+      console.log(`[!!!] ${err.message}`)
+      process.exit(1)
+    }
+
+    console.log(stdout, stderr)
+  }
+)
 // await ssh.connect({
 //   host: HOST,
 //   username: USERNAME,
@@ -36,11 +47,6 @@ const lines = SCRIPT.split(',')
 
 stream.on('data', chunk => {
   console.log(`[ssh] ${chunk.toString('utf8')}`)
-})
-
-stream.on('error', err => {
-  console.log(`[!!!] ${err.message}`)
-  process.exit(1)
 })
 
 for (let line of lines) {
