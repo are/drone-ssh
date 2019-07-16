@@ -24,7 +24,7 @@ const STR_REGEX = /^\"([^\"]+)\"$/
 const stream = exec('/bin/sh', {
   host: HOST,
   user: USERNAME,
-  privateKey: PRIVATE_KEY_PATH
+  key: PRIVATE_KEY_PATH
 })
 // await ssh.connect({
 //   host: HOST,
@@ -40,6 +40,7 @@ stream.on('data', chunk => {
 
 stream.on('error', err => {
   console.log(`[!!!] ${err.message}`)
+  process.exit(1)
 })
 
 for (let line of lines) {
