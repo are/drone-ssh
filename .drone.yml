@@ -17,6 +17,8 @@ steps:
       private_key_path: ./private_key
       host: https://dokku.are1000.dev
       username: dokku
+      env:
+        APP_NAME: "{{DRONE_TAG}}-blog.iama.re"
       script:
         - apps:create "{{APP_NAME}}"
         - domains:add "{{APP_NAME}}" "{{APP_NAME}}"
