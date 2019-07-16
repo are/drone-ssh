@@ -1,0 +1,12 @@
+kind: pipeline
+name: default
+
+steps:
+  - name: docker
+    image: plugins/docker
+    settings: are1000/drone-ssh
+    auto_tag: true
+    username:
+      from_secret: docker_username
+    password:
+      from_secret: docker_password
