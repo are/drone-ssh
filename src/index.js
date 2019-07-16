@@ -70,3 +70,5 @@ stream.on('data', chunk => {
 
   cont()
 })
+
+cont()
