@@ -14,8 +14,8 @@
   },
   "homepage": "https://github.com/are1000/drone-ssh#readme",
   "dependencies": {
-    "simple-ssh": "^1.0.0",
-    "sshpk": "^1.16.1",
-    "string-template": "^1.0.0"
+    "handlebars": "^4.1.2",
+    "node-ssh": "^6.0.0",
+    "simple-ssh": "^1.0.0"
   }
 }

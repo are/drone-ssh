@@ -1,8 +1,8 @@
-const format = require('string-template')
-const SSH = require('simple-ssh')
-const sshpk = require('sshpk')
+
+const handlebars = require('handlebars')
 const fs = require('fs')
 const path = require('path')
+const ssh = require('node-ssh')
 
   // - apk update
   // - apk add openssh
@@ -17,34 +17,34 @@ const path = require('path')
   // - ssh dokku@dokku.are1000.dev tar:from "$APP_NAME" "https://git.are1000.dev/are/blog.iama.re/releases/download/$DRONE_TAG/release.tar"
   // - ssh dokku@dokku.are1000.dev letsencrypt "$APP_NAME"
 
+const format = (str, data) => {
+    return handlebars.compile(str)(data)
+}
+
 const USERNAME = format(process.env.PLUGIN_USERNAME, process.env)
 const HOST = format(process.env.PLUGIN_HOST, process.env)
 const PRIVATE_KEY_PATH = format(process.env.PLUGIN_PRIVATE_KEY_PATH, process.env)
 const SCRIPT = process.env.PLUGIN_SCRIPT
 
-const key = fs.readFileSync(PRIVATE_KEY_PATH)
-
-
-const ssh = new SSH({
-    host: HOST,
-    user: USERNAME,
-    key: key.toString('utf8'),
-})
-
-const lines = SCRIPT.split(',')
-
-for (let line of lines) {
-    const formattedLine = format(line, process.env)
-
-    console.log(`${HOST} $ ${formattedLine}`)
-
-    ssh.exec(formattedLine, {
-        out: (message) => console.log(`${HOST} ${message}`)
+async function main () {
+    const connection = await ssh.connect({
+        host: HOST,
+        username: USERNAME,
+        privateKey: PRIVATE_KEY_PATH,
     })
+
+    const lines = SCRIPT.split(',')
+
+    for (let line of lines) {
+        const formattedLine = format(line, process.env)
+
+        console.log(`${HOST} $ ${formattedLine}`)
+
+        const result = ssh.execCommand(formattedLine)
+    }
 }
 
-ssh.start()
-  .on('error', () => {
-      console.log(error)
-      process.exit(1)
-  })
+main().catch(error => {
+    console.log(error)
+    process.exit(1)
+})
