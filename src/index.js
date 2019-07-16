@@ -53,7 +53,7 @@ for (let line of lines) {
 
   console.log(`[${USERNAME}@${HOST}] $ ${formattedLine}`)
 
-  stream.write(formattedLine)
+  stream.write(formattedLine + '\n')
 }
 
 stream.end()
