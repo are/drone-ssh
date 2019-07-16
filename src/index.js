@@ -27,12 +27,11 @@ const key = sshpk.parseKey(
   'auto'
 )
 
-console.log(key.toString('pem'))
 
 const ssh = new SSH({
     host: HOST,
     user: USERNAME,
-    key: key.toString('pem'),
+    key: key.toString(),
 })
 
 const lines = SCRIPT.split(',')
