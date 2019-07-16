@@ -2,7 +2,8 @@
 const handlebars = require('handlebars')
 const fs = require('fs')
 const path = require('path')
-const ssh = require('node-ssh')
+const node_ssh = require('node-ssh')
+const ssh = new node_ssh()
 
   // - apk update
   // - apk add openssh
