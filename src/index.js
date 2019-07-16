@@ -56,7 +56,7 @@ function go() {
     const output = chunk.toString('utf8')
 
     for (let line of output.split('\n')) {
-      console.log(`[ssh] ${line}`)
+      console.log(`${line}`)
     }
   })
 }
