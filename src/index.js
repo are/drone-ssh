@@ -22,16 +22,13 @@ const HOST = format(process.env.PLUGIN_HOST, process.env)
 const PRIVATE_KEY_PATH = format(process.env.PLUGIN_PRIVATE_KEY_PATH, process.env)
 const SCRIPT = process.env.PLUGIN_SCRIPT
 
-const key = sshpk.parseKey(
-  fs.readFileSync(PRIVATE_KEY_PATH),
-  'auto'
-)
+const key = fs.readFileSync(PRIVATE_KEY_PATH)
 
 
 const ssh = new SSH({
     host: HOST,
     user: USERNAME,
-    key: key.toString(),
+    key: key.toString('utf8'),
 })
 
 const lines = SCRIPT.split(',')
