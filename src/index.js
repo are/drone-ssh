@@ -17,13 +17,18 @@ const path = require('path')
   // - ssh dokku@dokku.are1000.dev tar:from "$APP_NAME" "https://git.are1000.dev/are/blog.iama.re/releases/download/$DRONE_TAG/release.tar"
   // - ssh dokku@dokku.are1000.dev letsencrypt "$APP_NAME"
 
+const USERNAME = format(process.env.PLUGIN_USERNAME, process.env)
 const HOST = format(process.env.PLUGIN_HOST, process.env)
 const PRIVATE_KEY_PATH = format(process.env.PLUGIN_PRIVATE_KEY_PATH, process.env)
 const SCRIPT = process.env.PLUGIN_SCRIPT
 
-const privateKey = fs.readFileSync(PRIVATE_KEY_PATH, 'utf8')
+const privateKey = fs.readFileSync(PRIVATE_KEY_PATH)
 
 const lines = SCRIPT.split(',')
+
+console.log(privateKey)
+console.log(lines)
+console.log(HOST, USERNAME, PRIVATE_KEY_PATH)
 
 for (let line of lines) {
     const formattedLine = format(line, process.env)
@@ -31,6 +36,9 @@ for (let line of lines) {
     console.log(`${HOST} $ ${formattedLine}`)
 
     const { out, error } = shell.ssh(HOST, formattedLine, {
+        host: HOST,
+        port: 22,
+        username: USERNAME,
         privateKey: privateKey
     })
 
