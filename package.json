@@ -1,0 +1,20 @@
+{
+  "name": "drone-ssh",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/are1000/drone-ssh.git"
+  },
+  "author": "Artur Wojciechowski <me@iama.re>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/are1000/drone-ssh/issues"
+  },
+  "homepage": "https://github.com/are1000/drone-ssh#readme",
+  "dependencies": {
+    "shelljs": "^0.8.3",
+    "shelljs-plugin-ssh": "^1.2.2"
+  }
+}

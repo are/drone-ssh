@@ -1,0 +1,14 @@
+kind: pipeline
+name: default
+
+steps:
+  - name: test-plugin
+    image: are1000/drone-ssh
+    settings:
+      private_key_path: ./private_key
+      host: https://dokku.are1000.dev
+      script:
+        - apps:create "$APP_NAME"
+        - domains:add "$APP_NAME" "$APP_NAME"
+        - tar:from "$APP_NAME" "https://git.are1000.dev/are/blog.iama.re/releases/download/$DRONE_TAG/release.tar"
+        - letsencrypt "$APP_NAME"
