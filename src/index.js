@@ -1,10 +1,10 @@
-const handlebars = require("handlebars")
-const fs = require("fs")
-const path = require("path")
-const node_ssh = require("node-ssh")
+const handlebars = require('handlebars')
+const fs = require('fs')
+const path = require('path')
+const node_ssh = require('node-ssh')
 const ssh = new node_ssh()
 
-const format = (str = "") => {
+const format = (str = '') => {
   return handlebars.compile(str)(process.env)
 }
 
@@ -18,6 +18,8 @@ for (let [key, value] of Object.entries(ENV)) {
   process.env[key] = format(value)
 }
 
+const STR_REGEX = /^\"([^\"]+)\"$/
+
 async function main() {
   await ssh.connect({
     host: HOST,
@@ -25,26 +27,49 @@ async function main() {
     privateKey: PRIVATE_KEY_PATH
   })
 
-  const lines = SCRIPT.split(",")
+  const lines = SCRIPT.split(',')
 
   for (let line of lines) {
     const formattedLine = format(line)
 
     console.log(`[${USERNAME}@${HOST}] $ ${formattedLine}`)
 
-    const { stdout, stderr, code } = await ssh.execCommand(formattedLine)
+    const [command, ...args] = formattedLine.split(' ')
+
+    const strippedArgs = args.map(arg => {
+      if (STR_REGEX.test(arg)) {
+        let [_, result] = arg.match(STR_REGEX)
+
+        return result
+      }
+
+      return arg
+    })
+
+    await ssh.exec(command, strippedArgs, {
+      onStdout: chunk => {
+        console.log(chunk.toString('utf8'))
+      },
+      onStderr: chunk => {
+        console.error(chunk.toString('utf8'))
+      }
+    })
 
     if (code !== 0) {
       throw stderr
     } else {
-      for (let line of stdout.split("\n")) {
+      for (let line of stdout.split('\n')) {
         console.log(`[ssh] ${line}`)
       }
     }
   }
 }
 
-main().catch(error => {
-  console.log(error)
-  process.exit(1)
-})
+main()
+  .then(() => {
+    process.exit(0)
+  })
+  .catch(error => {
+    console.log(error)
+    process.exit(1)
+  })
