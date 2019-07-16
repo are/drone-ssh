@@ -16,6 +16,7 @@
   "dependencies": {
     "handlebars": "^4.1.2",
     "node-ssh": "^6.0.0",
-    "simple-ssh": "^1.0.0"
+    "simple-ssh": "^1.0.0",
+    "ssh-exec": "^2.0.0"
   }
 }

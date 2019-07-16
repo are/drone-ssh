@@ -2,6 +2,7 @@ const handlebars = require('handlebars')
 const fs = require('fs')
 const path = require('path')
 const node_ssh = require('node-ssh')
+const exec = require('ssh-exec')
 const ssh = new node_ssh()
 
 const format = (str = '') => {
@@ -20,50 +21,33 @@ for (let [key, value] of Object.entries(ENV)) {
 
 const STR_REGEX = /^\"([^\"]+)\"$/
 
-async function main() {
-  await ssh.connect({
-    host: HOST,
-    username: USERNAME,
-    privateKey: PRIVATE_KEY_PATH
-  })
+const stream = exec('/bin/sh', {
+  host: HOST,
+  username: USERNAME,
+  privateKey: PRIVATE_KEY_PATH
+})
+// await ssh.connect({
+//   host: HOST,
+//   username: USERNAME,
+//   privateKey: PRIVATE_KEY_PATH
+// })
 
-  const lines = SCRIPT.split(',')
+const lines = SCRIPT.split(',')
 
-  for (let line of lines) {
-    const formattedLine = format(line)
+stream.on('data', chunk => {
+  console.log(`[ssh] ${chunk.toString('utf8')}`)
+})
 
-    console.log(`[${USERNAME}@${HOST}] $ ${formattedLine}`)
+stream.on('error', err => {
+  console.log(`[!!!] ${err.message}`)
+})
 
-    const [command, ...args] = formattedLine.split(' ')
+for (let line of lines) {
+  const formattedLine = format(line)
 
-    const strippedArgs = args.map(arg => {
-      // if (STR_REGEX.test(arg)) {
-      //   let [_, result] = arg.match(STR_REGEX)
+  console.log(`[${USERNAME}@${HOST}] $ ${formattedLine}`)
 
-      //   return result
-      // }
-
-      return arg
-    })
-
-    console.log(command, strippedArgs)
-
-    const result = await ssh.exec(command, strippedArgs, {
-      onStdout: chunk => {
-        console.log(chunk.toString('utf8'))
-      },
-      onStderr: chunk => {
-        console.error(chunk.toString('utf8'))
-      }
-    })
-  }
+  stream.write(formattedLine)
 }
 
-main()
-  .then(() => {
-    process.exit(0)
-  })
-  .catch(error => {
-    console.log(error)
-    process.exit(1)
-  })
+stream.end()
