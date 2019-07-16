@@ -48,7 +48,7 @@ async function main() {
 
     console.log(command, strippedArgs)
 
-    const { code } = await ssh.exec(command, strippedArgs, {
+    const { stderr, stdout, code } = await ssh.exec(command, strippedArgs, {
       onStdout: chunk => {
         console.log(chunk.toString('utf8'))
       },
