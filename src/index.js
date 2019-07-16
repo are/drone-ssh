@@ -30,7 +30,7 @@ for (let line of lines) {
 
     console.log(`${HOST} $ ${formattedLine}`)
 
-    const { out, error } = ssh(HOST, formattedLine, {
+    const { out, error } = shell.ssh(HOST, formattedLine, {
         privateKey: privateKey
     })
 
