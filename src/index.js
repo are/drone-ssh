@@ -48,7 +48,7 @@ async function main() {
 
     console.log(command, strippedArgs)
 
-    const { stderr, stdout, code } = await ssh.exec(command, strippedArgs, {
+    const result = await ssh.exec(command, strippedArgs, {
       onStdout: chunk => {
         console.log(chunk.toString('utf8'))
       },
@@ -57,12 +57,10 @@ async function main() {
       }
     })
 
-    if (code !== 0) {
-      throw stderr
-    } else {
-      for (let line of stdout.split('\n')) {
-        console.log(`[ssh] ${line}`)
-      }
+    console.log(result)
+
+    if (result.code !== 0) {
+      throw 'Failed'
     }
   }
 }
