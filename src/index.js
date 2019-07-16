@@ -37,11 +37,11 @@ async function main() {
     const [command, ...args] = formattedLine.split(' ')
 
     const strippedArgs = args.map(arg => {
-      if (STR_REGEX.test(arg)) {
-        let [_, result] = arg.match(STR_REGEX)
+      // if (STR_REGEX.test(arg)) {
+      //   let [_, result] = arg.match(STR_REGEX)
 
-        return result
-      }
+      //   return result
+      // }
 
       return arg
     })
