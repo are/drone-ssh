@@ -43,17 +43,30 @@ const stream = exec(
 // })
 
 const lines = SCRIPT.split(',')
+const currentIdx = 0
 
-stream.on('data', chunk => {
-  console.log(`[ssh] ${chunk.toString('utf8')}`)
-})
+function cont() {
+  const line = lines[currentIdx]
 
-for (let line of lines) {
+  if (line === undefined) {
+    stream.end()
+    process.exit(0)
+  }
+
   const formattedLine = format(line)
 
   console.log(`[${USERNAME}@${HOST}] $ ${formattedLine}`)
 
   stream.write(formattedLine + '\n')
+
+  currentIdx += 1
 }
 
-stream.end()
+stream.on('data', chunk => {
+  const output = chunk.toString('utf8')
+  for (let line of output.split('\n')) {
+    console.log(`[ssh] ${line}`)
+  }
+
+  cont()
+})
