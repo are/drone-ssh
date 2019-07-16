@@ -19,12 +19,12 @@ const ssh = new node_ssh()
   // - ssh dokku@dokku.are1000.dev letsencrypt "$APP_NAME"
 
 const format = (str, data) => {
-    return handlebars.compile(str)(data)
+    return handlebars.compile(str)(Object.assign({}, process.env))
 }
 
-const USERNAME = format(process.env.PLUGIN_USERNAME, process.env)
-const HOST = format(process.env.PLUGIN_HOST, process.env)
-const PRIVATE_KEY_PATH = format(process.env.PLUGIN_PRIVATE_KEY_PATH, process.env)
+const USERNAME = format(process.env.PLUGIN_USERNAME)
+const HOST = format(process.env.PLUGIN_HOST)
+const PRIVATE_KEY_PATH = format(process.env.PLUGIN_PRIVATE_KEY_PATH)
 const SCRIPT = process.env.PLUGIN_SCRIPT
 
 async function main () {
@@ -37,7 +37,7 @@ async function main () {
     const lines = SCRIPT.split(',')
 
     for (let line of lines) {
-        const formattedLine = format(line, process.env)
+        const formattedLine = format(line)
 
         console.log(`${HOST} $ ${formattedLine}`)
 
