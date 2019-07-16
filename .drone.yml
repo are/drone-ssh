@@ -8,12 +8,12 @@ steps:
       GITEA_TOKEN:
         from_secret: gitea_token
     commands:
-    - npx -q gitea-secret -h git.are1000.dev -t "$GITEA_TOKEN" -r are/secrets -k ssh-keys/dokku-drone/private -o /private_key
+    - npx -q gitea-secret -h git.are1000.dev -t "$GITEA_TOKEN" -r are/secrets -k ssh-keys/dokku-drone/private -o ./private_key
 
   - name: test-plugin
     image: are1000/drone-ssh:3
     settings:
-      private_key_path: /private_key
+      private_key_path: ./private_key
       host: https://dokku.are1000.dev
       script:
         - dokku apps:create "{APP_NAME}"
