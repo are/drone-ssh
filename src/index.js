@@ -43,7 +43,7 @@ const stream = exec(
 // })
 
 const lines = SCRIPT.split(',')
-const currentIdx = 0
+let currentIdx = 0
 
 function cont() {
   const line = lines[currentIdx]
