@@ -31,10 +31,9 @@ const stream = exec(
   function(err, stdout, stderr) {
     if (err) {
       console.log(`[!!!] ${err.message}`)
+      console.log(stdout, stderr)
       process.exit(1)
     }
-
-    console.log(stdout, stderr)
   }
 )
 // await ssh.connect({
