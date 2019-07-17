@@ -7,6 +7,9 @@
     "type": "git",
     "url": "git+https://github.com/are1000/drone-ssh.git"
   },
+  "scripts": {
+    "test": "./test.sh"
+  },
   "author": "Artur Wojciechowski <me@iama.re>",
   "license": "MIT",
   "bugs": {

@@ -15,9 +15,8 @@ const assert = (variable, message) => {
   return variable
 }
 
-const run = (command, { handleOut = data => console.log(data), handleErr = data => console.error(data), onStart = () => {} }) => new Promise((res, rej) => {
+const run = (command, { handleOut = data => console.log(data), handleErr = data => console.error(data), onStart = () => {} } = {}) => new Promise((res, rej) => {
   const process = exec(command, {
-    env: process.env,
     timeout: 1000 * 60
   })
 
@@ -54,6 +53,8 @@ async function main () {
   const keyPath = format(assert(KEY_PATH, 'Private key path must be defined'))
   const script = assert(SCRIPT, 'Script must be defined').split(',')
 
+  const sshKey = fs.readFileSync(keyPath, 'utf8')
+
   if (ENV !== undefined) {
     for (let [key, value] of Object.entries(JSON.parse(ENV))) {
       process.env[key] = format(value)
@@ -62,17 +63,15 @@ async function main () {
 
   await run('mkdir -p ~/.ssh/')
   await run(`ssh-keyscan -H ${host} >> ~/.ssh/known_hosts`)
-  await run(`eval $(ssh-agent -s)`)
-  await run(`ssh-add -`, {
-    onStart: process => process.stdin.write(fs.readFileSync(keyPath).toString('utf8') + '\n')
-  })
+  await run(`cat << EOF > ./key\n${sshKey}\nEOF`)
+  await run(`chmod 600 ./key`)
 
   for (let line of script) {
     let formattedLine = format(line)
 
     console.log(`[ssh] ${formattedLine}`)
 
-    await run(`ssh ${username}@${host} ${formattedLine}`)
+    await run(`ssh -i ./key ${username}@${host} ${formattedLine}`)
   }
 }
 
