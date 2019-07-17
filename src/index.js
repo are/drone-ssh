@@ -1,64 +1,84 @@
 const handlebars = require('handlebars')
 const fs = require('fs')
 const path = require('path')
-const node_ssh = require('node-ssh')
-const exec = require('ssh-exec')
-const ssh = new node_ssh()
+const { exec } = require('child_process')
 
 const format = (str = '') => {
   return handlebars.compile(str)(process.env)
 }
 
-const USERNAME = format(process.env.PLUGIN_USERNAME)
-const HOST = format(process.env.PLUGIN_HOST)
-const PRIVATE_KEY_PATH = format(process.env.PLUGIN_PRIVATE_KEY_PATH)
-const SCRIPT = process.env.PLUGIN_SCRIPT
-const ENV = JSON.parse(process.env.PLUGIN_ENV)
-
-for (let [key, value] of Object.entries(ENV)) {
-  process.env[key] = format(value)
-}
-
-const lines = SCRIPT.split(',')
-let currentIdx = 0
-
-function go() {
-  const line = lines[currentIdx]
-  currentIdx += 1
-
-  if (line === undefined) {
-    process.exit(0)
+const assert = (variable, message) => {
+  if (variable === undefined) {
+    throw message
   }
 
-  const formattedLine = format(line)
-
-  console.log(`[${USERNAME}@${HOST}] $ ${formattedLine}`)
-
-  const stream = exec(
-    formattedLine,
-    {
-      host: HOST,
-      user: USERNAME,
-      key: PRIVATE_KEY_PATH
-    },
-    function(err, stdout, stderr) {
-      if (err) {
-        console.log(`[!!!] ${err.message}`)
-        console.log(stdout, stderr)
-        process.exit(1)
-      } else {
-        go()
-      }
-    }
-  )
-
-  stream.on('data', chunk => {
-    const output = chunk.toString('utf8')
-
-    for (let line of output.split('\n')) {
-      console.log(`${line}`)
-    }
-  })
+  return variable
 }
 
-go()
+const run = (command, { handleOut = data => console.log(data), handleErr = data => console.error(data), onStart = () => {} }) => new Promise((res, rej) => {
+  const process = exec(command, {
+    env: process.env,
+    timeout: 1000 * 60
+  })
+
+  onStart(process)
+
+  process.on('close', (code, signal) => {
+    if (code !== 0) {
+      return rej(`Exited with non-zero code ${code}`)
+    } 
+
+    res(code)
+  })
+
+  process.on('error', rej)
+
+  process.stdout.on('data', chunk => {
+    handleOut && handleOut(chunk.toString('utf8'))
+  })
+
+  process.stderr.on('data', chunk => {
+    handleErr && handleErr(chunk.toString('utf8'))
+  })
+})
+
+const USERNAME = process.env.PLUGIN_USERNAME
+const HOST = process.env.PLUGIN_HOST
+const KEY_PATH = process.env.PLUGIN_PRIVATE_KEY_PATH
+const SCRIPT = process.env.PLUGIN_SCRIPT
+const ENV = process.env.PLUGIN_ENV
+
+async function main () {
+  const username = format(assert(USERNAME, 'Username must be defined'))
+  const host = format(assert(HOST, 'Host must be defined'))
+  const keyPath = format(assert(KEY_PATH, 'Private key path must be defined'))
+  const script = assert(SCRIPT, 'Script must be defined').split(',')
+
+  if (ENV !== undefined) {
+    for (let [key, value] of Object.entries(JSON.parse(ENV))) {
+      process.env[key] = format(value)
+    }
+  }
+
+  await run('mkdir -p ~/.ssh/')
+  await run(`ssh-keyscan -H ${host} >> ~/.ssh/known_hosts`)
+  await run(`eval $(ssh-agent -s)`)
+  await run(`ssh-add -`, {
+    onStart: process => process.stdin.write(fs.readFileSync(keyPath).toString('utf8') + '\n')
+  })
+
+  for (let line of script) {
+    let formattedLine = format(line)
+
+    console.log(`[ssh] ${formattedLine}`)
+
+    await run(`ssh ${username}@${host} ${formattedLine}`)
+  }
+}
+
+main().then(() => {
+  process.exit(0)
+}).catch(err => {
+  console.error(err)
+  process.exit(1)
+})
