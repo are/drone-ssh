@@ -57,11 +57,8 @@ async function main () {
 
   if (ENV !== undefined) {
     for (let [key, value] of Object.entries(JSON.parse(ENV))) {
-      console.log(key, value)
       process.env[key] = format(value)
     }
-
-    console.log(process.env)
   }
 
   await run('mkdir -p ~/.ssh/')
