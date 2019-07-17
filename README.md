@@ -2,6 +2,7 @@
 
 This is a plugin for `drone` CI.
 
+Test.
 You can use it to ssh into some server and execute commands.
 
 ## usage
